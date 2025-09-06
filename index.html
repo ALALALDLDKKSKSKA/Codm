@@ -53,12 +53,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 2.5rem;
+            height: 3rem; /* Bigger button height */
             width: 100%;
             border-radius: 0.5rem;
             background-color: #333;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.5rem; /* Bigger font size */
             font-weight: bold;
             transition: background-color 0.1s;
             touch-action: manipulation; /* Prevents double-tap to zoom */
@@ -75,9 +75,12 @@
             background-color: #777;
         }
         .space-key {
-            grid-column: span 4;
+            grid-column: span 5; /* Adjusted for better layout */
         }
         .wide-key {
+            grid-column: span 1;
+        }
+        .shift-key {
             grid-column: span 2;
         }
         
@@ -98,6 +101,13 @@
             content: attr(data-placeholder);
             color: #4a5568;
             opacity: 0.7;
+        }
+
+        /* Hide keyboard on larger screens */
+        @media (min-width: 768px) {
+            .custom-keyboard {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -199,7 +209,6 @@
         <button class="key-button" data-key="p">P</button>
     </div>
     <div class="key-row">
-        <div class="w-1/2"></div>
         <button class="key-button" data-key="a">A</button>
         <button class="key-button" data-key="s">S</button>
         <button class="key-button" data-key="d">D</button>
@@ -209,10 +218,9 @@
         <button class="key-button" data-key="j">J</button>
         <button class="key-button" data-key="k">K</button>
         <button class="key-button" data-key="l">L</button>
-        <div class="w-1/2"></div>
     </div>
     <div class="key-row">
-        <button class="key-button special-key wide-key" data-key="Shift">⇧</button>
+        <button class="key-button special-key shift-key" data-key="Shift">⇧</button>
         <button class="key-button" data-key="z">Z</button>
         <button class="key-button" data-key="x">X</button>
         <button class="key-button" data-key="c">C</button>
@@ -223,11 +231,10 @@
         <button id="backspaceKey" class="key-button special-key wide-key" data-key="Backspace">⌫</button>
     </div>
     <div class="key-row">
-        <button class="key-button special-key wide-key" data-key="123">.?123</button>
         <button class="key-button special-key" data-key=",">,</button>
         <button class="key-button space-key" data-key=" "></button>
         <button class="key-button special-key" data-key=".">.</button>
-        <button class="key-button special-key wide-key" data-key="Done">Done</button>
+        <button class="key-button special-key" data-key="Done">Done</button>
     </div>
 </div>
 
@@ -264,6 +271,7 @@
     let activeInputId = null;
     let isShifted = false;
     let backspaceInterval = null;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
     const API_KEY = "AIzaSyDHOsep4QtiL0WRmPw47WRC2PVEHhaiNg8"; // PASTE YOUR API KEY HERE
     
@@ -298,91 +306,105 @@
         }
     }
 
-    // Set up click listeners for the display spans
-    Object.keys(inputContainers).forEach(id => {
-        inputContainers[id].addEventListener('click', () => {
-            if (activeInputId) {
-                inputCursors[activeInputId].classList.add('hidden');
-            }
-            activeInputId = id;
-            inputCursors[activeInputId].classList.remove('hidden');
-            customKeyboard.classList.add('is-visible');
-        });
-    });
-
-    // Handle key presses on the custom keyboard
-    keyboardKeys.forEach(key => {
-        key.addEventListener('click', () => {
-            if (!activeInputId) return;
-
-            const keyValue = key.getAttribute('data-key');
-            let currentText = inputDisplays[activeInputId].textContent;
-            
-            // Remove placeholder class when user starts typing
-            inputDisplays[activeInputId].classList.remove('input-placeholder');
-
-            switch (keyValue) {
-                case 'Done':
-                    customKeyboard.classList.remove('is-visible');
+    if (isMobile) {
+        // Set up click listeners for the display spans
+        Object.keys(inputContainers).forEach(id => {
+            inputContainers[id].addEventListener('click', () => {
+                if (activeInputId) {
                     inputCursors[activeInputId].classList.add('hidden');
-                    activeInputId = null;
-                    break;
-                case 'Backspace':
-                    inputDisplays[activeInputId].textContent = currentText.slice(0, -1);
-                    if (inputDisplays[activeInputId].textContent === '') {
-                        inputDisplays[activeInputId].classList.add('input-placeholder');
-                    }
-                    break;
-                case 'Shift':
-                    isShifted = !isShifted;
-                    // Visually update the keys
-                    keyboardKeys.forEach(k => {
-                        const keyVal = k.getAttribute('data-key');
-                        if (keyVal.length === 1 && keyVal.match(/[a-z]/i)) {
-                            k.textContent = isShifted ? keyVal.toUpperCase() : keyVal.toLowerCase();
-                        }
-                    });
-                    break;
-                case '123':
-                    // To be implemented later for number/symbol keyboard
-                    break;
-                default:
-                    const char = isShifted ? keyValue.toUpperCase() : keyValue.toLowerCase();
-                    inputDisplays[activeInputId].textContent += char;
-                    isShifted = false; // Reset shift after a letter is typed
-            }
+                }
+                activeInputId = id;
+                inputCursors[activeInputId].classList.remove('hidden');
+                customKeyboard.classList.add('is-visible');
+            });
         });
-    });
 
-    // Continuous backspace logic
-    const backspaceKey = document.getElementById('backspaceKey');
-    backspaceKey.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        deleteCharacter();
-        backspaceInterval = setInterval(deleteCharacter, 100);
-    });
-    backspaceKey.addEventListener('mouseup', () => {
-        clearInterval(backspaceInterval);
-    });
-    backspaceKey.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        deleteCharacter();
-        backspaceInterval = setInterval(deleteCharacter, 100);
-    });
-    backspaceKey.addEventListener('touchend', () => {
-        clearInterval(backspaceInterval);
-    });
-    
-    function deleteCharacter() {
-        if (!activeInputId) return;
-        const currentText = inputDisplays[activeInputId].textContent;
-        if (currentText.length > 0) {
-            inputDisplays[activeInputId].textContent = currentText.slice(0, -1);
+        // Handle key presses on the custom keyboard
+        keyboardKeys.forEach(key => {
+            key.addEventListener('click', () => {
+                if (!activeInputId) return;
+
+                const keyValue = key.getAttribute('data-key');
+                let currentText = inputDisplays[activeInputId].textContent;
+                
+                // Remove placeholder class when user starts typing
+                inputDisplays[activeInputId].classList.remove('input-placeholder');
+
+                switch (keyValue) {
+                    case 'Done':
+                        customKeyboard.classList.remove('is-visible');
+                        inputCursors[activeInputId].classList.add('hidden');
+                        activeInputId = null;
+                        break;
+                    case 'Backspace':
+                        inputDisplays[activeInputId].textContent = currentText.slice(0, -1);
+                        if (inputDisplays[activeInputId].textContent === '') {
+                            inputDisplays[activeInputId].classList.add('input-placeholder');
+                        }
+                        break;
+                    case 'Shift':
+                        isShifted = !isShifted;
+                        // Visually update the keys
+                        keyboardKeys.forEach(k => {
+                            const keyVal = k.getAttribute('data-key');
+                            if (keyVal.length === 1 && keyVal.match(/[a-z]/i)) {
+                                k.textContent = isShifted ? keyVal.toUpperCase() : keyVal.toLowerCase();
+                            }
+                        });
+                        break;
+                    default:
+                        const char = isShifted ? keyValue.toUpperCase() : keyValue.toLowerCase();
+                        inputDisplays[activeInputId].textContent += char;
+                        isShifted = false; // Reset shift after a letter is typed
+                }
+            });
+        });
+
+        // Continuous backspace logic
+        const backspaceKey = document.getElementById('backspaceKey');
+        backspaceKey.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            deleteCharacter();
+            backspaceInterval = setInterval(deleteCharacter, 100);
+        });
+        backspaceKey.addEventListener('mouseup', () => {
+            clearInterval(backspaceInterval);
+        });
+        backspaceKey.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            deleteCharacter();
+            backspaceInterval = setInterval(deleteCharacter, 100);
+        });
+        backspaceKey.addEventListener('touchend', () => {
+            clearInterval(backspaceInterval);
+        });
+        
+        function deleteCharacter() {
+            if (!activeInputId) return;
+            const currentText = inputDisplays[activeInputId].textContent;
+            if (currentText.length > 0) {
+                inputDisplays[activeInputId].textContent = currentText.slice(0, -1);
+            }
+            if (inputDisplays[activeInputId].textContent === '') {
+                inputDisplays[activeInputId].classList.add('input-placeholder');
+            }
         }
-        if (inputDisplays[activeInputId].textContent === '') {
-            inputDisplays[activeInputId].classList.add('input-placeholder');
-        }
+    } else {
+        // Desktop version
+        Object.keys(inputDisplays).forEach(id => {
+            const inputEl = inputDisplays[id];
+            inputEl.setAttribute('contenteditable', 'true');
+            inputCursors[id].classList.add('hidden');
+            inputEl.addEventListener('focus', () => inputEl.classList.remove('input-placeholder'));
+            inputEl.addEventListener('blur', () => {
+                if (inputEl.textContent.trim() === '') {
+                    inputEl.classList.add('input-placeholder');
+                }
+            });
+        });
+        customKeyboard.style.display = 'none';
     }
+
 
     generateBtn.addEventListener('click', async () => {
         const weapon = weaponDisplay.textContent.trim();
