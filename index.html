@@ -6,7 +6,7 @@
     <!-- Meta tags for full-screen mode on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="COD Loadouts">
+    <meta name="apple-mobile-web-app-title" content="CODM Loadouts">
     
     <title>COD Mobile Attachment Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,6 +43,12 @@
         .custom-keyboard.is-visible {
             transform: translateY(0);
         }
+        .key-row {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
         .key-button {
             display: flex;
             align-items: center;
@@ -59,6 +65,8 @@
         }
         .key-button:active {
             background-color: #555;
+            transform: scale(0.95);
+            transition: transform 0.1s;
         }
         .special-key {
             background-color: #555;
@@ -66,14 +74,40 @@
         .special-key:active {
             background-color: #777;
         }
+        .space-key {
+            grid-column: span 4;
+        }
+        .wide-key {
+            grid-column: span 2;
+        }
+        
+        /* Typing indicator animation */
+        .typing-indicator {
+            width: 2px;
+            height: 1.5rem;
+            background-color: #fff;
+            margin-left: 0.25rem;
+            animation: blink-caret 0.75s step-end infinite;
+        }
+        @keyframes blink-caret {
+            from, to { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .input-placeholder::before {
+            content: attr(data-placeholder);
+            color: #4a5568;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
 
 <div class="container mx-auto max-w-4xl p-8 rounded-3xl bg-gray-800 shadow-2xl border border-gray-700">
     <div class="text-center mb-10">
-        <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2 drop-shadow-lg">COD Mobile Loadout Generator</h1>
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2 drop-shadow-lg">CODM Loadouts for YOU!!</h1>
         <p class="text-lg sm:text-xl text-gray-400">Optimize your attachments for victory!</p>
+        <p class="text-md sm:text-lg text-gray-500 italic mt-2">if the attachments are not in the game or do not exist regenerate the loadout</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -83,15 +117,24 @@
             <div class="space-y-6">
                 <div>
                     <label for="weapon" class="block text-sm font-medium text-gray-400">Weapon Name</label>
-                    <input type="text" id="weapon" placeholder="e.g., AK-47, M13, RUS-79U" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" readonly>
+                    <div class="relative mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-300 flex items-center cursor-pointer">
+                        <span id="weaponDisplay" class="flex-grow min-h-[1.5rem] overflow-hidden whitespace-nowrap input-placeholder" data-placeholder="e.g., Kilo 141"></span>
+                        <span id="weaponCursor" class="typing-indicator hidden"></span>
+                    </div>
                 </div>
                 <div>
                     <label for="playstyle" class="block text-sm font-medium text-gray-400">Playstyle</label>
-                    <input type="text" id="playstyle" placeholder="e.g., aggressive, long-range, objective" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" readonly>
+                    <div class="relative mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-300 flex items-center cursor-pointer">
+                        <span id="playstyleDisplay" class="flex-grow min-h-[1.5rem] overflow-hidden whitespace-nowrap input-placeholder" data-placeholder="e.g., Aggressive"></span>
+                        <span id="playstyleCursor" class="typing-indicator hidden"></span>
+                    </div>
                 </div>
                 <div>
                     <label for="details" class="block text-sm font-medium text-gray-400">Specific Details (Optional)</label>
-                    <textarea id="details" rows="3" placeholder="e.g., need a stealth build, no scope, good for hip fire" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-300" readonly></textarea>
+                    <div class="relative mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-300 flex items-center cursor-pointer min-h-[4rem]">
+                        <span id="detailsDisplay" class="flex-grow min-h-[1.5rem] overflow-hidden whitespace-nowrap input-placeholder" data-placeholder="e.g., for ranked matches"></span>
+                        <span id="detailsCursor" class="typing-indicator hidden"></span>
+                    </div>
                 </div>
                 <div class="flex justify-center">
                     <button id="generateBtn" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-full shadow-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105">
@@ -105,10 +148,10 @@
         <div class="bg-gray-700 rounded-2xl p-6 shadow-xl border border-gray-600 flex flex-col">
             <h2 class="text-2xl font-bold mb-4 text-gray-200">Recommended Loadout</h2>
             <div id="loadingIndicator" class="hidden flex items-center justify-center space-x-2 text-blue-400 py-10">
-                <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <div class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                </div>
                 <span class="text-lg">Generating...</span>
             </div>
             <div id="resultBox" class="flex-grow p-4 bg-gray-900 rounded-lg border border-gray-600 min-h-[200px] overflow-auto">
@@ -130,91 +173,110 @@
 </div>
 
 <!-- Custom Keyboard HTML -->
-<div id="customKeyboard" class="custom-keyboard grid grid-cols-10 gap-1 p-2">
-    <!-- Row 1 -->
-    <button class="key-button" data-key="1">1</button>
-    <button class="key-button" data-key="2">2</button>
-    <button class="key-button" data-key="3">3</button>
-    <button class="key-button" data-key="4">4</button>
-    <button class="key-button" data-key="5">5</button>
-    <button class="key-button" data-key="6">6</button>
-    <button class="key-button" data-key="7">7</button>
-    <button class="key-button" data-key="8">8</button>
-    <button class="key-button" data-key="9">9</button>
-    <button class="key-button" data-key="0">0</button>
-    <!-- Row 2 -->
-    <button class="key-button col-span-1" data-key="Q">Q</button>
-    <button class="key-button col-span-1" data-key="W">W</button>
-    <button class="key-button col-span-1" data-key="E">E</button>
-    <button class="key-button col-span-1" data-key="R">R</button>
-    <button class="key-button col-span-1" data-key="T">T</button>
-    <button class="key-button col-span-1" data-key="Y">Y</button>
-    <button class="key-button col-span-1" data-key="U">U</button>
-    <button class="key-button col-span-1" data-key="I">I</button>
-    <button class="key-button col-span-1" data-key="O">O</button>
-    <button class="key-button col-span-1" data-key="P">P</button>
-    <!-- Row 3 -->
-    <div class="col-span-1"></div>
-    <button class="key-button col-span-1" data-key="A">A</button>
-    <button class="key-button col-span-1" data-key="S">S</button>
-    <button class="key-button col-span-1" data-key="D">D</button>
-    <button class="key-button col-span-1" data-key="F">F</button>
-    <button class="key-button col-span-1" data-key="G">G</button>
-    <button class="key-button col-span-1" data-key="H">H</button>
-    <button class="key-button col-span-1" data-key="J">J</button>
-    <button class="key-button col-span-1" data-key="K">K</button>
-    <button class="key-button col-span-1" data-key="L">L</button>
-    <!-- Row 4 -->
-    <button class="key-button special-key col-span-2" data-key="Shift">⇧</button>
-    <button class="key-button col-span-1" data-key="Z">Z</button>
-    <button class="key-button col-span-1" data-key="X">X</button>
-    <button class="key-button col-span-1" data-key="C">C</button>
-    <button class="key-button col-span-1" data-key="V">V</button>
-    <button class="key-button col-span-1" data-key="B">B</button>
-    <button class="key-button col-span-1" data-key="N">N</button>
-    <button class="key-button col-span-1" data-key="M">M</button>
-    <button id="backspaceKey" class="key-button special-key col-span-1" data-key="Backspace">⌫</button>
-    <!-- Row 5 -->
-    <button class="key-button special-key col-span-2" data-key="123">.?123</button>
-    <button class="key-button special-key col-span-1" data-key=",">,</button>
-    <button class="key-button col-span-4" data-key=" "></button>
-    <button class="key-button special-key col-span-1" data-key=".">.</button>
-    <button class="key-button special-key col-span-2" data-key="Done">Done</button>
+<div id="customKeyboard" class="custom-keyboard">
+    <div class="key-row">
+        <button class="key-button" data-key="1">1</button>
+        <button class="key-button" data-key="2">2</button>
+        <button class="key-button" data-key="3">3</button>
+        <button class="key-button" data-key="4">4</button>
+        <button class="key-button" data-key="5">5</button>
+        <button class="key-button" data-key="6">6</button>
+        <button class="key-button" data-key="7">7</button>
+        <button class="key-button" data-key="8">8</button>
+        <button class="key-button" data-key="9">9</button>
+        <button class="key-button" data-key="0">0</button>
+    </div>
+    <div class="key-row">
+        <button class="key-button" data-key="q">Q</button>
+        <button class="key-button" data-key="w">W</button>
+        <button class="key-button" data-key="e">E</button>
+        <button class="key-button" data-key="r">R</button>
+        <button class="key-button" data-key="t">T</button>
+        <button class="key-button" data-key="y">Y</button>
+        <button class="key-button" data-key="u">U</button>
+        <button class="key-button" data-key="i">I</button>
+        <button class="key-button" data-key="o">O</button>
+        <button class="key-button" data-key="p">P</button>
+    </div>
+    <div class="key-row">
+        <div class="w-1/2"></div>
+        <button class="key-button" data-key="a">A</button>
+        <button class="key-button" data-key="s">S</button>
+        <button class="key-button" data-key="d">D</button>
+        <button class="key-button" data-key="f">F</button>
+        <button class="key-button" data-key="g">G</button>
+        <button class="key-button" data-key="h">H</button>
+        <button class="key-button" data-key="j">J</button>
+        <button class="key-button" data-key="k">K</button>
+        <button class="key-button" data-key="l">L</button>
+        <div class="w-1/2"></div>
+    </div>
+    <div class="key-row">
+        <button class="key-button special-key wide-key" data-key="Shift">⇧</button>
+        <button class="key-button" data-key="z">Z</button>
+        <button class="key-button" data-key="x">X</button>
+        <button class="key-button" data-key="c">C</button>
+        <button class="key-button" data-key="v">V</button>
+        <button class="key-button" data-key="b">B</button>
+        <button class="key-button" data-key="n">N</button>
+        <button class="key-button" data-key="m">M</button>
+        <button id="backspaceKey" class="key-button special-key wide-key" data-key="Backspace">⌫</button>
+    </div>
+    <div class="key-row">
+        <button class="key-button special-key wide-key" data-key="123">.?123</button>
+        <button class="key-button special-key" data-key=",">,</button>
+        <button class="key-button space-key" data-key=" "></button>
+        <button class="key-button special-key" data-key=".">.</button>
+        <button class="key-button special-key wide-key" data-key="Done">Done</button>
+    </div>
 </div>
 
 <script>
     const generateBtn = document.getElementById('generateBtn');
-    const weaponInput = document.getElementById('weapon');
-    const playstyleInput = document.getElementById('playstyle');
-    const detailsInput = document.getElementById('details');
+    const weaponDisplay = document.getElementById('weaponDisplay');
+    const playstyleDisplay = document.getElementById('playstyleDisplay');
+    const detailsDisplay = document.getElementById('detailsDisplay');
+    const weaponCursor = document.getElementById('weaponCursor');
+    const playstyleCursor = document.getElementById('playstyleCursor');
+    const detailsCursor = document.getElementById('detailsCursor');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const attachmentsDiv = document.getElementById('attachments');
     const messageBox = document.getElementById('messageBox');
     const closeMessageBtn = document.getElementById('closeMessage');
     const customKeyboard = document.getElementById('customKeyboard');
     const keyboardKeys = customKeyboard.querySelectorAll('.key-button');
-    const inputFields = [weaponInput, playstyleInput, detailsInput];
-    const backspaceKey = document.getElementById('backspaceKey');
+    const inputDisplays = {
+        weapon: weaponDisplay,
+        playstyle: playstyleDisplay,
+        details: detailsDisplay
+    };
+    const inputCursors = {
+        weapon: weaponCursor,
+        playstyle: playstyleCursor,
+        details: detailsCursor
+    };
+    const inputContainers = {
+        weapon: document.getElementById('weaponDisplay').parentElement,
+        playstyle: document.getElementById('playstyleDisplay').parentElement,
+        details: document.getElementById('detailsDisplay').parentElement
+    };
 
-    let activeInput = null;
+    let activeInputId = null;
     let isShifted = false;
     let backspaceInterval = null;
 
     const API_KEY = "AIzaSyDHOsep4QtiL0WRmPw47WRC2PVEHhaiNg8"; // PASTE YOUR API KEY HERE
-
-    // Function to show a custom message box instead of alert()
+    
     function showMessageBox(message) {
         const messageText = messageBox.querySelector('p');
         messageText.textContent = message;
         messageBox.classList.remove('hidden');
     }
 
-    // Event listener for the close button on the message box
     closeMessageBtn.addEventListener('click', () => {
         messageBox.classList.add('hidden');
     });
 
-    // Helper function to handle API calls with exponential backoff
     async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
         try {
             const response = await fetch(url, options);
@@ -236,23 +298,72 @@
         }
     }
 
-    // Show the custom keyboard when an input field is clicked
-    inputFields.forEach(input => {
-        input.addEventListener('click', (e) => {
-            activeInput = e.target;
+    // Set up click listeners for the display spans
+    Object.keys(inputContainers).forEach(id => {
+        inputContainers[id].addEventListener('click', () => {
+            if (activeInputId) {
+                inputCursors[activeInputId].classList.add('hidden');
+            }
+            activeInputId = id;
+            inputCursors[activeInputId].classList.remove('hidden');
             customKeyboard.classList.add('is-visible');
         });
     });
 
-    // Backspace logic for continuous deletion
-    backspaceKey.addEventListener('mousedown', () => {
+    // Handle key presses on the custom keyboard
+    keyboardKeys.forEach(key => {
+        key.addEventListener('click', () => {
+            if (!activeInputId) return;
+
+            const keyValue = key.getAttribute('data-key');
+            let currentText = inputDisplays[activeInputId].textContent;
+            
+            // Remove placeholder class when user starts typing
+            inputDisplays[activeInputId].classList.remove('input-placeholder');
+
+            switch (keyValue) {
+                case 'Done':
+                    customKeyboard.classList.remove('is-visible');
+                    inputCursors[activeInputId].classList.add('hidden');
+                    activeInputId = null;
+                    break;
+                case 'Backspace':
+                    inputDisplays[activeInputId].textContent = currentText.slice(0, -1);
+                    if (inputDisplays[activeInputId].textContent === '') {
+                        inputDisplays[activeInputId].classList.add('input-placeholder');
+                    }
+                    break;
+                case 'Shift':
+                    isShifted = !isShifted;
+                    // Visually update the keys
+                    keyboardKeys.forEach(k => {
+                        const keyVal = k.getAttribute('data-key');
+                        if (keyVal.length === 1 && keyVal.match(/[a-z]/i)) {
+                            k.textContent = isShifted ? keyVal.toUpperCase() : keyVal.toLowerCase();
+                        }
+                    });
+                    break;
+                case '123':
+                    // To be implemented later for number/symbol keyboard
+                    break;
+                default:
+                    const char = isShifted ? keyValue.toUpperCase() : keyValue.toLowerCase();
+                    inputDisplays[activeInputId].textContent += char;
+                    isShifted = false; // Reset shift after a letter is typed
+            }
+        });
+    });
+
+    // Continuous backspace logic
+    const backspaceKey = document.getElementById('backspaceKey');
+    backspaceKey.addEventListener('mousedown', (e) => {
+        e.preventDefault();
         deleteCharacter();
         backspaceInterval = setInterval(deleteCharacter, 100);
     });
     backspaceKey.addEventListener('mouseup', () => {
         clearInterval(backspaceInterval);
     });
-    // For touch devices
     backspaceKey.addEventListener('touchstart', (e) => {
         e.preventDefault();
         deleteCharacter();
@@ -263,55 +374,20 @@
     });
     
     function deleteCharacter() {
-        if (!activeInput) return;
-        const cursorPosition = activeInput.selectionStart;
-        if (cursorPosition > 0) {
-            const currentValue = activeInput.value;
-            const newValue = currentValue.substring(0, cursorPosition - 1) + currentValue.substring(cursorPosition);
-            activeInput.value = newValue;
-            activeInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        if (!activeInputId) return;
+        const currentText = inputDisplays[activeInputId].textContent;
+        if (currentText.length > 0) {
+            inputDisplays[activeInputId].textContent = currentText.slice(0, -1);
+        }
+        if (inputDisplays[activeInputId].textContent === '') {
+            inputDisplays[activeInputId].classList.add('input-placeholder');
         }
     }
 
-    // Handle key presses on the custom keyboard
-    keyboardKeys.forEach(key => {
-        // Skip the backspace key as we're handling it with mousedown/up
-        if (key.getAttribute('data-key') === 'Backspace') return;
-
-        key.addEventListener('click', () => {
-            if (!activeInput) return;
-
-            const keyValue = key.getAttribute('data-key');
-            let cursorPosition = activeInput.selectionStart;
-
-            switch (keyValue) {
-                case 'Done':
-                    customKeyboard.classList.remove('is-visible');
-                    activeInput.blur();
-                    activeInput = null;
-                    break;
-                case 'Shift':
-                    isShifted = !isShifted;
-                    // Visually update the keys here if needed
-                    break;
-                case '123':
-                    // Not implemented in this version, but you could swap out the keyboard layout here
-                    break;
-                default:
-                    const char = isShifted ? keyValue.toUpperCase() : keyValue.toLowerCase();
-                    const currentValue = activeInput.value;
-                    const newValue = currentValue.substring(0, cursorPosition) + char + currentValue.substring(cursorPosition);
-                    activeInput.value = newValue;
-                    activeInput.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
-                    isShifted = false; // Reset shift after a letter is typed
-            }
-        });
-    });
-
     generateBtn.addEventListener('click', async () => {
-        const weapon = weaponInput.value.trim();
-        const playstyle = playstyleInput.value.trim();
-        const details = detailsInput.value.trim();
+        const weapon = weaponDisplay.textContent.trim();
+        const playstyle = playstyleDisplay.textContent.trim();
+        const details = detailsDisplay.textContent.trim();
 
         if (API_KEY === "") {
             showMessageBox("Please provide a valid API key in the code.");
@@ -325,7 +401,7 @@
 
         loadingIndicator.classList.remove('hidden');
         generateBtn.disabled = true;
-        document.getElementById('buttonText').textContent = 'Generating...';
+        document.getElementById('buttonText').textContent = '';
         attachmentsDiv.innerHTML = '';
 
         const systemPrompt = "You are a professional Call of Duty Mobile loadout creator. Based on the user's weapon, playstyle, and any additional details, provide a specific and detailed list of five attachments (e.g., 'Monolithic Suppressor', 'OWC Marksman Barrel', 'No Stock', 'OWC Laser - Tactical', 'Granulated Grip Tape'). Format the response as a bulleted list. Do not include any other text or explanation, just the list of attachments.";
@@ -353,12 +429,10 @@
 
                 let htmlContent = '<ul class="list-disc list-inside space-y-2">';
                 lines.forEach(line => {
-                    // Check if the line is a bullet point, if not, add one
                     const formattedLine = line.startsWith('-') || line.startsWith('*') ? line.substring(1).trim() : line.trim();
                     htmlContent += `<li><span class="text-blue-400 font-bold">Attachment:</span> ${formattedLine}</li>`;
                 });
                 htmlContent += '</ul>';
-
                 attachmentsDiv.innerHTML = htmlContent;
             } else {
                 attachmentsDiv.innerHTML = `<p class="text-red-400 text-center">Sorry, I couldn't generate a loadout. Please try again.</p>`;
