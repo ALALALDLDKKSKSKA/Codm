@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Meta tags for full-screen mode on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="COD Loadouts">
@@ -25,6 +24,11 @@
             justify-content: center;
             padding: 1rem;
         }
+
+        /* Fix for mobile touch events */
+        #messageBox.hidden {
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -36,7 +40,6 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Input Section -->
         <div class="bg-gray-700 rounded-2xl p-6 shadow-xl border border-gray-600">
             <h2 class="text-2xl font-bold mb-4 text-gray-200">Weapon and Playstyle</h2>
             <div class="space-y-6">
@@ -60,7 +63,6 @@
             </div>
         </div>
 
-        <!-- Output Section -->
         <div class="bg-gray-700 rounded-2xl p-6 shadow-xl border border-gray-600 flex flex-col">
             <h2 class="text-2xl font-bold mb-4 text-gray-200">Recommended Loadout</h2>
             <div id="loadingIndicator" class="hidden flex items-center justify-center space-x-2 text-blue-400 py-10">
@@ -78,7 +80,6 @@
         </div>
     </div>
 
-    <!-- Message Box for API Key Errors -->
     <div id="messageBox" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="bg-red-800 border border-red-700 rounded-xl p-6 shadow-2xl max-w-sm w-full text-center">
             <h3 class="text-xl font-bold text-red-200 mb-2">API Key Error</h3>
