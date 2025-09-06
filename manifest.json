@@ -1,6 +1,6 @@
 {
-    "name": "Gemini Web Chat",
-    "short_name": "Gemini Chat",
+    "name": "COD Mobile Loadout Generator",
+    "short_name": "COD Loadouts",
     "start_url": "./",
     "display": "standalone",
     "background_color": "#f3f4f6",
