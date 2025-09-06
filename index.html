@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CODM Loadouts">
     
-    <title>COD Mobile Attachment Generator</title>
+    <title>CODM Loadouts for YOU!!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,7 +117,7 @@
     <div class="text-center mb-10">
         <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2 drop-shadow-lg">CODM Loadouts for YOU!!</h1>
         <p class="text-lg sm:text-xl text-gray-400">Optimize your attachments for victory!</p>
-        <p class="text-md sm:text-lg text-gray-500 italic mt-2">if the attachments are not in the game or do not exist regenerate the loadout</p>
+        <p class="text-md sm:text-lg text-gray-500 italic mt-2">If the attachments are not in the game or do not exist, regenerate the loadout.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -426,7 +426,7 @@
         document.getElementById('buttonText').textContent = '';
         attachmentsDiv.innerHTML = '';
 
-        const systemPrompt = "You are a professional Call of Duty Mobile loadout creator. Based on the user's weapon, playstyle, and any additional details, provide a specific and detailed list of five attachments (e.g., 'Monolithic Suppressor', 'OWC Marksman Barrel', 'No Stock', 'OWC Laser - Tactical', 'Granulated Grip Tape'). Format the response as a bulleted list. Do not include any other text or explanation, just the list of attachments.";
+        const systemPrompt = "You are a professional Call of Duty Mobile loadout creator. Search for the most up-to-date, in-game attachments for the current year, 2025. Based on the user's weapon, playstyle, and any additional details, provide a specific list of five attachments. For each attachment, format the output as 'Part of weapon: Attachment Name'. For example, 'Muzzle: Monolithic Suppressor'. Do not include any other text or explanation, just the list of attachments with this format.";
         const userQuery = `Weapon: ${weapon}. Playstyle: ${playstyle}. Details: ${details}`;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
@@ -451,8 +451,12 @@
 
                 let htmlContent = '<ul class="list-disc list-inside space-y-2">';
                 lines.forEach(line => {
-                    const formattedLine = line.startsWith('-') || line.startsWith('*') ? line.substring(1).trim() : line.trim();
-                    htmlContent += `<li><span class="text-blue-400 font-bold">Attachment:</span> ${formattedLine}</li>`;
+                    const parts = line.split(':');
+                    if (parts.length === 2) {
+                        const partType = parts[0].trim();
+                        const attachmentName = parts[1].trim();
+                        htmlContent += `<li><span class="text-blue-400 font-bold">${partType}:</span> ${attachmentName}</li>`;
+                    }
                 });
                 htmlContent += '</ul>';
                 attachmentsDiv.innerHTML = htmlContent;
