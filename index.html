@@ -19,38 +19,57 @@
             font-family: 'Inter', sans-serif;
             background-color: #0d1117;
             color: #c9d1d9;
-            /* Use a simple flexbox layout for centering */
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 1rem;
-            min-height: 100vh;
         }
-
-        /* Fix for mobile touch events on the hidden message box */
-        #messageBox.hidden {
-            pointer-events: none;
+        
+        /* Custom keyboard styling */
+        .custom-keyboard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1a1a1a;
+            border-top: 1px solid #333;
+            padding: 0.5rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
-
-        /* A robust container that scrolls but won't be pushed by the keyboard */
-        .scrollable-container {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            max-width: 100%;
+        .custom-keyboard.is-visible {
+            transform: translateY(0);
         }
-
-        /* This is crucial for fixing the iOS keyboard issue on PWAs */
-        @media (display-mode: standalone) {
-            body {
-                min-height: 100%;
-            }
+        .key-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 2.5rem;
+            width: 100%;
+            border-radius: 0.5rem;
+            background-color: #333;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: bold;
+            transition: background-color 0.1s;
+        }
+        .key-button:active {
+            background-color: #555;
+        }
+        .special-key {
+            background-color: #555;
+        }
+        .special-key:active {
+            background-color: #777;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
 
-<div class="container scrollable-container mx-auto max-w-4xl p-8 rounded-3xl bg-gray-800 shadow-2xl border border-gray-700 w-full">
+<div class="container mx-auto max-w-4xl p-8 rounded-3xl bg-gray-800 shadow-2xl border border-gray-700">
     <div class="text-center mb-10">
         <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2 drop-shadow-lg">COD Mobile Loadout Generator</h1>
         <p class="text-lg sm:text-xl text-gray-400">Optimize your attachments for victory!</p>
@@ -63,15 +82,15 @@
             <div class="space-y-6">
                 <div>
                     <label for="weapon" class="block text-sm font-medium text-gray-400">Weapon Name</label>
-                    <input type="text" id="weapon" placeholder="e.g., AK-47, M13, RUS-79U" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                    <input type="text" id="weapon" placeholder="e.g., AK-47, M13, RUS-79U" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" readonly>
                 </div>
                 <div>
                     <label for="playstyle" class="block text-sm font-medium text-gray-400">Playstyle</label>
-                    <input type="text" id="playstyle" placeholder="e.g., aggressive, long-range, objective" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                    <input type="text" id="playstyle" placeholder="e.g., aggressive, long-range, objective" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" readonly>
                 </div>
                 <div>
                     <label for="details" class="block text-sm font-medium text-gray-400">Specific Details (Optional)</label>
-                    <textarea id="details" rows="3" placeholder="e.g., need a stealth build, no scope, good for hip fire" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-300"></textarea>
+                    <textarea id="details" rows="3" placeholder="e.g., need a stealth build, no scope, good for hip fire" class="mt-1 block w-full rounded-lg border-gray-600 bg-gray-900 text-white shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-300" readonly></textarea>
                 </div>
                 <div class="flex justify-center">
                     <button id="generateBtn" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-full shadow-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105">
@@ -109,6 +128,59 @@
     </div>
 </div>
 
+<!-- Custom Keyboard HTML -->
+<div id="customKeyboard" class="custom-keyboard grid grid-cols-10 gap-1 p-2">
+    <!-- Row 1 -->
+    <button class="key-button" data-key="1">1</button>
+    <button class="key-button" data-key="2">2</button>
+    <button class="key-button" data-key="3">3</button>
+    <button class="key-button" data-key="4">4</button>
+    <button class="key-button" data-key="5">5</button>
+    <button class="key-button" data-key="6">6</button>
+    <button class="key-button" data-key="7">7</button>
+    <button class="key-button" data-key="8">8</button>
+    <button class="key-button" data-key="9">9</button>
+    <button class="key-button" data-key="0">0</button>
+    <!-- Row 2 -->
+    <button class="key-button col-span-1" data-key="Q">Q</button>
+    <button class="key-button col-span-1" data-key="W">W</button>
+    <button class="key-button col-span-1" data-key="E">E</button>
+    <button class="key-button col-span-1" data-key="R">R</button>
+    <button class="key-button col-span-1" data-key="T">T</button>
+    <button class="key-button col-span-1" data-key="Y">Y</button>
+    <button class="key-button col-span-1" data-key="U">U</button>
+    <button class="key-button col-span-1" data-key="I">I</button>
+    <button class="key-button col-span-1" data-key="O">O</button>
+    <button class="key-button col-span-1" data-key="P">P</button>
+    <!-- Row 3 -->
+    <div class="col-span-1"></div>
+    <button class="key-button col-span-1" data-key="A">A</button>
+    <button class="key-button col-span-1" data-key="S">S</button>
+    <button class="key-button col-span-1" data-key="D">D</button>
+    <button class="key-button col-span-1" data-key="F">F</button>
+    <button class="key-button col-span-1" data-key="G">G</button>
+    <button class="key-button col-span-1" data-key="H">H</button>
+    <button class="key-button col-span-1" data-key="J">J</button>
+    <button class="key-button col-span-1" data-key="K">K</button>
+    <button class="key-button col-span-1" data-key="L">L</button>
+    <!-- Row 4 -->
+    <button class="key-button special-key col-span-2" data-key="Shift">⇧</button>
+    <button class="key-button col-span-1" data-key="Z">Z</button>
+    <button class="key-button col-span-1" data-key="X">X</button>
+    <button class="key-button col-span-1" data-key="C">C</button>
+    <button class="key-button col-span-1" data-key="V">V</button>
+    <button class="key-button col-span-1" data-key="B">B</button>
+    <button class="key-button col-span-1" data-key="N">N</button>
+    <button class="key-button col-span-1" data-key="M">M</button>
+    <button class="key-button special-key col-span-1" data-key="Backspace">⌫</button>
+    <!-- Row 5 -->
+    <button class="key-button special-key col-span-2" data-key="123">.?123</button>
+    <button class="key-button special-key col-span-1" data-key=",">,</button>
+    <button class="key-button col-span-4" data-key=" "></button>
+    <button class="key-button special-key col-span-1" data-key=".">.</button>
+    <button class="key-button special-key col-span-2" data-key="Done">Done</button>
+</div>
+
 <script>
     const generateBtn = document.getElementById('generateBtn');
     const weaponInput = document.getElementById('weapon');
@@ -118,7 +190,13 @@
     const attachmentsDiv = document.getElementById('attachments');
     const messageBox = document.getElementById('messageBox');
     const closeMessageBtn = document.getElementById('closeMessage');
-    
+    const customKeyboard = document.getElementById('customKeyboard');
+    const keyboardKeys = customKeyboard.querySelectorAll('.key-button');
+    const inputFields = [weaponInput, playstyleInput, detailsInput];
+
+    let activeInput = null;
+    let isShifted = false;
+
     const API_KEY = "AIzaSyDHOsep4QtiL0WRmPw47WRC2PVEHhaiNg8"; // PASTE YOUR API KEY HERE
 
     // Function to show a custom message box instead of alert()
@@ -154,6 +232,54 @@
             throw error;
         }
     }
+
+    // Show the custom keyboard when an input field is clicked
+    inputFields.forEach(input => {
+        input.addEventListener('click', (e) => {
+            activeInput = e.target;
+            customKeyboard.classList.add('is-visible');
+        });
+    });
+
+    // Handle key presses on the custom keyboard
+    keyboardKeys.forEach(key => {
+        key.addEventListener('click', () => {
+            if (!activeInput) return;
+
+            const keyValue = key.getAttribute('data-key');
+            let cursorPosition = activeInput.selectionStart;
+
+            switch (keyValue) {
+                case 'Done':
+                    customKeyboard.classList.remove('is-visible');
+                    activeInput.blur();
+                    activeInput = null;
+                    break;
+                case 'Backspace':
+                    if (cursorPosition > 0) {
+                        const currentValue = activeInput.value;
+                        const newValue = currentValue.substring(0, cursorPosition - 1) + currentValue.substring(cursorPosition);
+                        activeInput.value = newValue;
+                        activeInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+                    }
+                    break;
+                case 'Shift':
+                    isShifted = !isShifted;
+                    // Visually update the keys here if needed
+                    break;
+                case '123':
+                    // Not implemented in this version, but you could swap out the keyboard layout here
+                    break;
+                default:
+                    const char = isShifted ? keyValue.toUpperCase() : keyValue.toLowerCase();
+                    const currentValue = activeInput.value;
+                    const newValue = currentValue.substring(0, cursorPosition) + char + currentValue.substring(cursorPosition);
+                    activeInput.value = newValue;
+                    activeInput.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
+                    isShifted = false; // Reset shift after a letter is typed
+            }
+        });
+    });
 
     generateBtn.addEventListener('click', async () => {
         const weapon = weaponInput.value.trim();
