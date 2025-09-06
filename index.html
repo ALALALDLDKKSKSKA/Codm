@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <!-- Meta tags for full-screen mode on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,6 +19,13 @@
             font-family: 'Inter', sans-serif;
             background-color: #0d1117;
             color: #c9d1d9;
+            /* Use a simple flexbox layout for centering */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            min-height: 100vh;
         }
 
         /* Fix for mobile touch events on the hidden message box */
@@ -26,23 +33,24 @@
             pointer-events: none;
         }
 
-        /* Ensure the main container is a fixed height to prevent resizing on keyboard pop-up */
-        .fixed-height-container {
-            height: 100vh;
+        /* A robust container that scrolls but won't be pushed by the keyboard */
+        .scrollable-container {
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
         }
 
-        /* Adjusting for iOS behavior where vh doesn't account for address bar */
+        /* This is crucial for fixing the iOS keyboard issue on PWAs */
         @media (display-mode: standalone) {
-            .fixed-height-container {
-                height: 100%;
+            body {
+                min-height: 100%;
             }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+<body class="bg-gray-900 text-white">
 
-<div id="mainContainer" class="fixed-height-container w-full mx-auto max-w-4xl p-8 rounded-3xl bg-gray-800 shadow-2xl border border-gray-700">
+<div class="container scrollable-container mx-auto max-w-4xl p-8 rounded-3xl bg-gray-800 shadow-2xl border border-gray-700 w-full">
     <div class="text-center mb-10">
         <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2 drop-shadow-lg">COD Mobile Loadout Generator</h1>
         <p class="text-lg sm:text-xl text-gray-400">Optimize your attachments for victory!</p>
@@ -110,16 +118,8 @@
     const attachmentsDiv = document.getElementById('attachments');
     const messageBox = document.getElementById('messageBox');
     const closeMessageBtn = document.getElementById('closeMessage');
-    const mainContainer = document.getElementById('mainContainer');
-
+    
     const API_KEY = "AIzaSyDHOsep4QtiL0WRmPw47WRC2PVEHhaiNg8"; // PASTE YOUR API KEY HERE
-
-    // Fix for iOS fullscreen keyboard issue
-    function setFullHeight() {
-        mainContainer.style.height = `${window.innerHeight}px`;
-    }
-    window.addEventListener('resize', setFullHeight);
-    setFullHeight(); // Initial call to set height
 
     // Function to show a custom message box instead of alert()
     function showMessageBox(message) {
