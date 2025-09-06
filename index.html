@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <!-- Meta tags for full-screen mode on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -55,6 +55,7 @@
             font-size: 1.25rem;
             font-weight: bold;
             transition: background-color 0.1s;
+            touch-action: manipulation; /* Prevents double-tap to zoom */
         }
         .key-button:active {
             background-color: #555;
@@ -172,7 +173,7 @@
     <button class="key-button col-span-1" data-key="B">B</button>
     <button class="key-button col-span-1" data-key="N">N</button>
     <button class="key-button col-span-1" data-key="M">M</button>
-    <button class="key-button special-key col-span-1" data-key="Backspace">⌫</button>
+    <button id="backspaceKey" class="key-button special-key col-span-1" data-key="Backspace">⌫</button>
     <!-- Row 5 -->
     <button class="key-button special-key col-span-2" data-key="123">.?123</button>
     <button class="key-button special-key col-span-1" data-key=",">,</button>
@@ -193,9 +194,11 @@
     const customKeyboard = document.getElementById('customKeyboard');
     const keyboardKeys = customKeyboard.querySelectorAll('.key-button');
     const inputFields = [weaponInput, playstyleInput, detailsInput];
+    const backspaceKey = document.getElementById('backspaceKey');
 
     let activeInput = null;
     let isShifted = false;
+    let backspaceInterval = null;
 
     const API_KEY = "AIzaSyDHOsep4QtiL0WRmPw47WRC2PVEHhaiNg8"; // PASTE YOUR API KEY HERE
 
@@ -241,8 +244,40 @@
         });
     });
 
+    // Backspace logic for continuous deletion
+    backspaceKey.addEventListener('mousedown', () => {
+        deleteCharacter();
+        backspaceInterval = setInterval(deleteCharacter, 100);
+    });
+    backspaceKey.addEventListener('mouseup', () => {
+        clearInterval(backspaceInterval);
+    });
+    // For touch devices
+    backspaceKey.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        deleteCharacter();
+        backspaceInterval = setInterval(deleteCharacter, 100);
+    });
+    backspaceKey.addEventListener('touchend', () => {
+        clearInterval(backspaceInterval);
+    });
+    
+    function deleteCharacter() {
+        if (!activeInput) return;
+        const cursorPosition = activeInput.selectionStart;
+        if (cursorPosition > 0) {
+            const currentValue = activeInput.value;
+            const newValue = currentValue.substring(0, cursorPosition - 1) + currentValue.substring(cursorPosition);
+            activeInput.value = newValue;
+            activeInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        }
+    }
+
     // Handle key presses on the custom keyboard
     keyboardKeys.forEach(key => {
+        // Skip the backspace key as we're handling it with mousedown/up
+        if (key.getAttribute('data-key') === 'Backspace') return;
+
         key.addEventListener('click', () => {
             if (!activeInput) return;
 
@@ -254,14 +289,6 @@
                     customKeyboard.classList.remove('is-visible');
                     activeInput.blur();
                     activeInput = null;
-                    break;
-                case 'Backspace':
-                    if (cursorPosition > 0) {
-                        const currentValue = activeInput.value;
-                        const newValue = currentValue.substring(0, cursorPosition - 1) + currentValue.substring(cursorPosition);
-                        activeInput.value = newValue;
-                        activeInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
-                    }
                     break;
                 case 'Shift':
                     isShifted = !isShifted;
