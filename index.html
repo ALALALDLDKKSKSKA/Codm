@@ -274,7 +274,7 @@
     let backspaceInterval = null;
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-    const API_KEY = "AIzaSyDHOsep4QtiL0WRmPw47WRC2PVEHhaiNg8"; // PASTE YOUR API KEY HERE
+    const API_KEY = "";
     
     function showMessageBox(message) {
         const messageText = messageBox.querySelector('p');
@@ -427,7 +427,66 @@
         document.getElementById('buttonText').textContent = '';
         attachmentsDiv.innerHTML = '';
 
-        const systemPrompt = "You are a professional Call of Duty Mobile loadout creator. When given a weapon, your first step is to perform a Google search to find a comprehensive, updated list of ALL available attachments for that specific gun in the current year, 2025. You must use the exact, full names of the attachments as they appear in the game, for example, '30 Rnd' instead of '30 Round Extended Mag'. You will use ONLY attachments from this verified list. Based on the user's weapon, playstyle, and any additional details, provide a specific list of five attachments. For each attachment, format the output as 'Part of weapon: Attachment Name'. For example, 'Muzzle: Monolithic Suppressor'. Do not include any other text or explanation, just the list of attachments with this format.";
+        const systemPrompt = `You are a professional Call of Duty Mobile loadout creator. You will ONLY use attachments from the following list. For any weapon the user requests, find the five best attachments based on the playstyle and details provided. You must use the exact names from this list for your recommendations.
+
+The official list of attachments is as follows:
+
+Universal Muzzle:
+Tactical Suppressor
+OWS Light Suppressor
+Monolithic Suppressor
+OWS Light Compensator
+MFT Light Flashguard
+MFT Light Flash Guard
+RTG Muzzle Brake
+
+Universal Grip:
+Commando Foregrip
+Merc Foregrip
+Operator Foregrip
+Ranger Foregrip
+Tactical Foregrip
+
+Universal Laser Sight:
+RTG Laser 1mW
+MFT Laser 5mW
+OWC Laser - Tactical
+
+Exclusive Muzzle (Available for Certain Guns):
+MFT Light Muzzle Brake (HBRa3, KN44, BK57, AK117)
+RTG Huge Suppressor (Man-O-War)
+Breacher Device (ICR-1)
+Choke (All Shotgun)
+JPI Flash Guard (S36, UL736, M4LMG)
+RTG Compensator (All Sniper)
+
+Exclusive Foregrip (Available for Certain Guns):
+OSW Foregrip (PDW-57, Cordite)
+Tactical Guard & Steady Guard (BY15)
+Bipod (All Sniper, S36, UL736, RPD, Chopper)
+Heavy Handle (Chopper)
+
+Exclusive Stock (Available for Certain Guns):
+No Stock (M16, AK117, AK-47, ASM10, M4, LK24, ICR-1, KN-44, HBRa3, XPR-50, M21 EBR, Outlaw, RPD, M4LMG, RUS-79U, MSMC, Q09, BY15, HS0405, KRM-262)
+OWC Skeleton Stock (AK-47, HBRa3, DL Q33, Arctic.50, M21 EBR, Locus, Outlaw, RUS-79U, HG 40)
+RTG Steady Stock (Arctic.50, Locus, Outlaw, M4LMG, HG 40, BY15, KRM-262)
+MFT Stalker Stock (HS1216, BY15, Striker, KRM-262)
+OWC Ranger Stock (DL Q33)
+JPI Ghost Stock (XPR-50)
+
+Universal Rear Grip (Available for All Guns):
+Stippled Grip Tape
+Granulated Grip Tape
+Rubberized Grip Tape
+
+Exclusive Magazine (Available for Certain Guns):
+Large Caliber Mag A (ICR-1)
+Stopping Power Mag (Type 25)
+10mm 39 Round Mag (Q09)
+500g slug (BY 15, HS0405, Striker, KRM-262)
+
+The user's request is as follows:`;
+
         const userQuery = `Weapon: ${weapon}. Playstyle: ${playstyle}. Details: ${details}`;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
